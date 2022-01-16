@@ -9,6 +9,7 @@ namespace TestSnake
         Up,
         Down,
         Right,
-        Left
+        Left,
+        Stop
     }
 }

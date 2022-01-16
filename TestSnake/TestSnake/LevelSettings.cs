@@ -13,10 +13,5 @@ namespace TestSnake
         public int FoodCount { get; set; }
         public int SnakePosX { get; set; }
         public int SnakePosY { get; set; }
-
-        public LevelSettings()
-        {
-
-        }
     }
 }
