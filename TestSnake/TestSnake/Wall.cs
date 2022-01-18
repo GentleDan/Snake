@@ -4,10 +4,9 @@ using System.Text;
 
 namespace TestSnake
 {
-    public class Food
+    public class Wall
     {
         public int PosX { get; set; }
         public int PosY { get; set; }
-        public bool IsEaten { get; set; }
     }
 }

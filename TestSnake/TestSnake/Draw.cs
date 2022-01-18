@@ -7,15 +7,17 @@ namespace TestSnake
 {
     public class Draw
     {
-		private Random rnd = new Random();
+        private Random rnd;
 		public bool GameOver;
-		public int LevelScore;
-        public int Score = 0;
-        public int Step = 0;
-        public int CurrentLevel = 1;
-		private Snake snake;
-        //private List<Food> foods;
-        private Food food;
+        private int LevelScore = 0;
+        private int TotalScore = 0;
+        private int DeathCount = 0;
+        private int Step = 0;
+        private int CurrentLevel = 1;
+        private int SnakeLife = 3;
+        private List<Wall> WallsCoordinates;
+        private Snake snake;
+        private List<Food> foods;
 		private LoadLevel load;
 		private LevelSettings settings;
 		private char[,] Field;
@@ -23,7 +25,7 @@ namespace TestSnake
 
 		public void LoadGameSettings()
         {
-			LevelScore = 0;
+            rnd = new Random();
 			load = new LoadLevel(config);
 			settings = load.ReadInfo();
 			GameOver = false;
@@ -35,23 +37,80 @@ namespace TestSnake
                 TailX = new int[settings.Width],
                 TailY = new int[settings.Height],
                 direction = Direction.Stop,
-                GameSpeed = 250
+                GameSpeed = 250,
+                Life = SnakeLife
 			};
-            food = new Food();
-			Field = settings.Level;
-		}
+            foods = new List<Food>();
+            Field = settings.Level;
+            StartFoodPosition();
+        }
 
-        private void FoodPosition()
+        private void StartFoodPosition()
         {
-            food.PosX = rnd.Next(1, settings.Width - 1);
-            food.PosY = rnd.Next(1, settings.Height - 1);
-            if (food.PosX == 0 || food.PosY == 0 || food.PosX == settings.Width || food.PosY == settings.Height)
+            for (int i = 0; i < settings.FoodCount; i++)
             {
-                FoodPosition();
+                foods.Add(new Food { IsEaten = false });
             }
-            if(food.PosX == snake.PosX && food.PosY == snake.PosY)
+            foreach (var f in foods)
             {
-                FoodPosition();
+                f.PosX = rnd.Next(1, settings.Width - 1);
+                f.PosY = rnd.Next(1, settings.Height - 1);
+                if (f.PosX == 0 || f.PosY == 0 || f.PosX == settings.Width || f.PosY == settings.Height || Field[f.PosY, f.PosX] == '#')
+                {
+                    StartFoodPosition();
+                }
+                if (f.PosX == snake.PosX && f.PosY == snake.PosY)
+                {
+                    StartFoodPosition();
+                }
+            }
+        }
+
+        private bool CheckWall()
+        {
+            foreach(var wall in WallsCoordinates)
+            {
+                if(snake.PosY == wall.PosY && snake.PosX == wall.PosX)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void GetWallsCoordinates()
+        {
+            WallsCoordinates = new List<Wall>();
+            for(int i = 0; i < settings.Height; i++)
+            {
+                for(int j = 0; j < settings.Width; j++)
+                {
+                    if(Field[i,j] == '#')
+                    {
+                        WallsCoordinates.Add(new Wall { PosX = j, PosY = i });
+                    }
+                }
+            }
+        }
+
+        private void ChangeFoodPosition()
+        {
+            foreach (var f in foods)
+            {
+                if (f.IsEaten)
+                {
+                    f.PosX = rnd.Next(1, settings.Width - 1);
+                    f.PosY = rnd.Next(1, settings.Height - 1);
+                    if (f.PosX == 0 || f.PosY == 0 || f.PosX == settings.Width || f.PosY == settings.Height || Field[f.PosY, f.PosX] == '#')
+                    {
+                        ChangeFoodPosition();
+                    }
+                    if (f.PosX == snake.PosX && f.PosY == snake.PosY)
+                    {
+                        ChangeFoodPosition();
+                    }
+                    f.IsEaten = false;
+                }
             }
         }
 
@@ -59,14 +118,20 @@ namespace TestSnake
         {
             config = "../../../../SecondLevel.txt";
             LoadGameSettings();
+            GetWallsCoordinates();
+            LevelScore = 0;
             CurrentLevel++;
         }
 
         private bool Eat()
         {
-            if (snake.PosX == food.PosX && snake.PosY == food.PosY)
+            foreach (var f in foods)
             {
-                return true;
+                if (snake.PosX == f.PosX && snake.PosY == f.PosY)
+                {
+                    f.IsEaten = true;
+                    return true;
+                }
             }
             return false;
         }
@@ -75,31 +140,38 @@ namespace TestSnake
         {
             if (!GameOver)
             {
-                Console.Clear();
+                Console.SetCursorPosition(0,0);
                 for (int i = 0; i < settings.Height; i++)
                 {
                     for (int j = 0; j < settings.Width; j++)
                     {
-                        if (i == snake.PosY && j == snake.PosX)
+                        foreach (var f in foods)
+                        {
+                            if (i == f.PosY && j == f.PosX && !f.IsEaten)
+                            {
+                                Field[i, j] = 's';
+                            }
+                            else if (i == snake.PosY && j == snake.PosX)
+                            {
+                                Field[i, j] = 'O';
+                            }
+                        }
+                        if (i == snake.PosY && j == snake.PosX && Field[i,j] != 's')
                         {
                             Field[i, j] = 'O';
-                        }
-                        else if (i == food.PosY && j == food.PosX)
-                        {
-                            Field[i, j] = 's';
                         }
                         else
                         {
                             bool print = false;
                             for (int k = 1; k < snake.Size; k++)
                             {
-                                if (snake.TailX[k] == j && snake.TailY[k] == i && Field[i, j] != '#')
+                                if (snake.TailX[k] == j && snake.TailY[k] == i && Field[i, j] != '#' && Field[i, j] != 's')
                                 {
                                     Field[i, j] = 'o';
                                     print = true;
                                 }
                             }
-                            if (!print && Field[i, j] != '#')
+                            if (!print && Field[i, j] != '#' && Field[i, j] != 's')
                             {
                                 Field[i, j] = '.';
                             }
@@ -115,6 +187,7 @@ namespace TestSnake
                     Console.WriteLine();
                 }
                 Console.WriteLine("Уровень: " + CurrentLevel);
+                Console.WriteLine("Жизни: " + snake.Life);
                 Console.WriteLine("Счет: " + LevelScore);
                 Console.WriteLine("Необходимо еды собрать: " + settings.RequiredFoodPoints);
                 Console.WriteLine("Осталось еды собрать: " + (settings.RequiredFoodPoints - LevelScore));
@@ -123,17 +196,18 @@ namespace TestSnake
             {
                 Console.Clear();
                 Console.WriteLine("Игра окончена!");
-                Console.WriteLine("Статистика: ");
-                Console.WriteLine("Всего съедено: " + Score);
+                Console.WriteLine("Статистика");
+                Console.WriteLine("Всего съедено: " + TotalScore);
                 Console.WriteLine("Пройдено клеток: " + Step);
-                Console.WriteLine("Количество смертей: ");
+                Console.WriteLine("Количество смертей: " + DeathCount);
             }
         }
 
         public void StartGame()
         {
             LoadGameSettings();
-            FoodPosition();
+            GetWallsCoordinates();
+            ChangeFoodPosition();
             while (Game.direction != Direction.Stop && !GameOver)
             {
                 snake.direction = Game.direction;
@@ -141,15 +215,25 @@ namespace TestSnake
                 Step++;
                 if (Eat())
                 {
-                    FoodPosition();
+                    ChangeFoodPosition();
                     snake.Size++;
                     LevelScore++;
-                    Score++;
+                    TotalScore++;
+                }
+                if (CheckWall())
+                {
+                    SnakeLife--;
+                    DeathCount++;
+                    StartGame();
+                }
+                if(SnakeLife == 0)
+                {
+                    GameOver = true;
                 }
                 if(LevelScore == settings.RequiredFoodPoints)
                 {
                     ChangeLevel();
-                    FoodPosition();
+                    ChangeFoodPosition();
                     if(CurrentLevel == 3)
                     {
                         GameOver = true;
