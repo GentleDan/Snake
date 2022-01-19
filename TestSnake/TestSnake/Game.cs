@@ -11,19 +11,19 @@ namespace TestSnake
         {
             if (Console.KeyAvailable)
             {
-                var key = Console.ReadKey();
-                switch (key.KeyChar)
+                var key = Console.ReadKey(true).Key;
+                switch (key)
                 {
-                    case 'w':
+                    case ConsoleKey.W:
                         direction = Direction.Up;
                         break;
-                    case 'a':
+                    case ConsoleKey.A:
                         direction = Direction.Left;
                         break;
-                    case 's':
+                    case ConsoleKey.S:
                         direction = Direction.Down;
                         break;
-                    case 'd':
+                    case ConsoleKey.D:
                         direction = Direction.Right;
                         break;
                 }

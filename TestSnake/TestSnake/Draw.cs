@@ -66,13 +66,20 @@ namespace TestSnake
             }
         }
 
-        private bool CheckWall()
+        private bool CheckFail()
         {
             foreach(var wall in WallsCoordinates)
             {
                 if(snake.PosY == wall.PosY && snake.PosX == wall.PosX)
                 {
                     return true;
+                }
+                for(int i = 1; i < snake.Size; i++)
+                {
+                    if(snake.PosX == snake.TailX[i] && snake.PosY == snake.TailY[i])
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -220,7 +227,7 @@ namespace TestSnake
                     LevelScore++;
                     TotalScore++;
                 }
-                if (CheckWall())
+                if (CheckFail())
                 {
                     SnakeLife--;
                     DeathCount++;
