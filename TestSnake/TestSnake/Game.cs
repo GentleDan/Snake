@@ -27,13 +27,25 @@ namespace TestSnake
                     case ConsoleKey.W:
                         direction = Direction.Up;
                         break;
+                    case ConsoleKey.UpArrow:
+                        direction = Direction.Up;
+                        break;
                     case ConsoleKey.A:
+                        direction = Direction.Left;
+                        break;
+                    case ConsoleKey.LeftArrow:
                         direction = Direction.Left;
                         break;
                     case ConsoleKey.S:
                         direction = Direction.Down;
                         break;
+                    case ConsoleKey.DownArrow:
+                        direction = Direction.Down;
+                        break;
                     case ConsoleKey.D:
+                        direction = Direction.Right;
+                        break;
+                    case ConsoleKey.RightArrow:
                         direction = Direction.Right;
                         break;
                 }
