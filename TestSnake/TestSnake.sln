@@ -12,8 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{3E1EF5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Levels", "Levels", "{74A0F1FB-7025-40DA-8248-F121962AEE23}"
 	ProjectSection(SolutionItems) = preProject
-		Levels\FirstLevel.json = Levels\FirstLevel.json
-		Levels\SecondLevel.json = Levels\SecondLevel.json
+		Levels\GameLvl_1.json = Levels\GameLvl_1.json
+		Levels\GameLvl_2.json = Levels\GameLvl_2.json
 	EndProjectSection
 EndProject
 Global

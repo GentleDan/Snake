@@ -10,10 +10,9 @@ namespace TestSnake
     /// </summary>
     public class Draw
     {
-        private static readonly string FirstLevel = "../../../../Levels/FirstLevel.json"; //путь к файлу с первым уровнем
-        private static readonly string SecondLevel = "../../../../Levels/SecondLevel.json"; //путь к файлу со вторым уровнем
+        private readonly string LevelConfig = "../../../../Levels/GameLvl_"; // файл с игровым полем
         private static readonly string JsonConfig = "../../../../Config/GameConfig.json"; // путь к файлу с конфигурацией размера змейки и количества жизней
-        private string LevelConfig = FirstLevel; // файл с игровым полем
+        private int LvlCount; // кол-во уровней в папке
         private int TotalScore; //общий игровой счет
         private int DeathCount; //счетчик смертей
         private bool PrintTail; //флаговая переменная для отрисовки хвоста змейки (если false, то отрисовывается пустое пространство)
@@ -37,8 +36,9 @@ namespace TestSnake
         /// </summary>
         public void LoadGameSettings()
         {
+            LvlCount = System.IO.Directory.GetFiles("../../../../Levels").Length;
             PrintTail = false;
-            load = new LoadLevel(LevelConfig, JsonConfig);
+            load = new LoadLevel(LevelConfig + CurrentLevel + ".json", JsonConfig);
             //загрузка настроек уровня из файла
             settings = load.ReadLevelInfo();
             gameJsonConfig = load.LoadConfig();
@@ -175,11 +175,13 @@ namespace TestSnake
         private void ChangeLevel()
         {
             Console.Clear();
-            LevelConfig = SecondLevel;
-            LoadGameSettings();
-            GetWallsCoordinates();
-            SnakeLife -= DeathCount;
             CurrentLevel++;
+            if (CurrentLevel <= LvlCount)
+            {
+                LoadGameSettings();
+                GetWallsCoordinates();
+            }
+            SnakeLife -= DeathCount;
         }
 
         /// <summary>
@@ -243,19 +245,19 @@ namespace TestSnake
                     }
                     Console.WriteLine();
                 }
-                Console.WriteLine("Уровень: " + CurrentLevel);
-                Console.WriteLine("Жизни: " + SnakeLife);
-                Console.WriteLine("Счет: " + LevelScore);
-                Console.WriteLine("Необходимо еды собрать: " + settings.RequiredFoodPoints);
+                Console.WriteLine("Уровень: " + CurrentLevel + "\n" +
+                                  "Жизни: " + SnakeLife + "\n" +
+                                  "Счет: " + LevelScore + "\n" +
+                                  "Необходимо еды собрать: " + settings.RequiredFoodPoints);
             }
             else
             {
                 Console.Clear();
-                Console.WriteLine("Игра окончена!");
-                Console.WriteLine("Статистика");
-                Console.WriteLine("Всего съедено: " + TotalScore);
-                Console.WriteLine("Пройдено клеток: " + Step);
-                Console.WriteLine("Количество смертей: " + DeathCount);
+                Console.WriteLine("Игра окончена!" + "\n" +
+                                  "Статистика" + "\n" +
+                                  "Всего съедено: " + TotalScore + "\n" +
+                                  "Пройдено клеток: " + Step + "\n" +
+                                  "Количество смертей: " + DeathCount);
                 return;
             }
         }
@@ -300,19 +302,12 @@ namespace TestSnake
         }
 
         /// <summary>
-        /// Метод StartGame() вызывает методы загрузки настроек уровня,
-        /// и статистику
+        /// Метод CheckGameLogic() - логика игры. Вызывает
+        /// методы смены уровней, проверки столкновения,
+        /// проверки поедания и отрисовки
         /// </summary>
-        public void StartGame()
+        public void CheckGameLogic()
         {
-            TotalScore = 0;
-            DeathCount = 0;
-            Step = 0;
-            CurrentLevel = 1;
-            //отключаем видимость курсора, чтобы картинка не мерцала
-            Console.CursorVisible = false;
-            LoadGameSettings();
-            GetWallsCoordinates();
             while (!IsGameOver)
             {
                 snake.direction = Game.direction;
@@ -327,14 +322,13 @@ namespace TestSnake
                 }
                 if (SnakeLife == 0)
                 {
-                    LevelConfig = FirstLevel;
                     StartGame();
                 }
                 if (IsFail())
                 {
                     DeathCount++;
                     LoadGameSettings();
-                    SnakeLife -= DeathCount; 
+                    SnakeLife -= DeathCount;
                 }
                 if (LevelScore == settings.RequiredFoodPoints)
                 {
@@ -347,8 +341,25 @@ namespace TestSnake
                 }
                 DrawField();
                 //приостановка потока. используется вместо объявления и инициализации объекта таймера
-                Thread.Sleep(snake.GameSpeed);  
+                Thread.Sleep(snake.GameSpeed);
             }
+        }
+
+        /// <summary>
+        /// Метод StartGame() вызывает методы загрузки настроек уровня,
+        /// и статистику
+        /// </summary>
+        public void StartGame()
+        {
+            TotalScore = 0;
+            DeathCount = 0;
+            Step = 0;
+            CurrentLevel = 1;
+            //отключаем видимость курсора, чтобы картинка не мерцала
+            Console.CursorVisible = false;
+            LoadGameSettings();
+            GetWallsCoordinates();
+            CheckGameLogic();
         }
     }
 }
