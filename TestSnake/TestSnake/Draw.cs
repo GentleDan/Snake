@@ -10,15 +10,17 @@ namespace TestSnake
     /// </summary>
     public class Draw
     {
-        private string LevelConfig = "../../../../Levels/FirstLevel.json"; // файл с игровым полем
-        private readonly string JsonConfig = "../../../../Config/GameConfig.json"; // файл с конфигурацией размера змейки и количества жизней
-        private int TotalScore = 0; //общий игровой счет, изначально принимает значение 0
-        private int DeathCount = 0; //счетчик смертей, изначально принимает значение 0
+        private static readonly string FirstLevel = "../../../../Levels/FirstLevel.json"; //путь к файлу с первым уровнем
+        private static readonly string SecondLevel = "../../../../Levels/SecondLevel.json"; //путь к файлу со вторым уровнем
+        private static readonly string JsonConfig = "../../../../Config/GameConfig.json"; // путь к файлу с конфигурацией размера змейки и количества жизней
+        private string LevelConfig = FirstLevel; // файл с игровым полем
+        private int TotalScore; //общий игровой счет
+        private int DeathCount; //счетчик смертей
         private bool PrintTail; //флаговая переменная для отрисовки хвоста змейки (если false, то отрисовывается пустое пространство)
-        private int Step = 0; //счетчик общего количества пройденных клеток, изначально принимает значение 0
-        private int CurrentLevel = 1; //общий игровой счет, изначально принимает значение 0
-        private int SnakeLife; //общий игровой счет, изначально принимает значение 0
-        public bool GameOver; //переменная-флаг, обозначающая конец игры
+        private int Step; //счетчик общего количества пройденных клеток
+        private int CurrentLevel; //общий игровой счет
+        private int SnakeLife; //общий игровой счет
+        public bool IsGameOver; //переменная-флаг, обозначающая конец игры
         private int LevelScore; //игровой счет на конкретном уровне
         private char[,] Field; //игровое поле
         private Random rnd; //объект класса Random
@@ -42,7 +44,7 @@ namespace TestSnake
             gameJsonConfig = load.LoadConfig();
             LevelScore = 0;
             rnd = new Random();
-            GameOver = false;
+            IsGameOver = false;
             SnakeLife = gameJsonConfig.LifeCount;
             snake = new Snake
             {
@@ -172,11 +174,11 @@ namespace TestSnake
         /// </summary>
         private void ChangeLevel()
         {
-            LevelConfig = "../../../../Levels/SecondLevel.json";
+            Console.Clear();
+            LevelConfig = SecondLevel;
             LoadGameSettings();
             GetWallsCoordinates();
             SnakeLife -= DeathCount;
-            LevelScore = 0;
             CurrentLevel++;
         }
 
@@ -204,7 +206,7 @@ namespace TestSnake
         /// </summary>
         public void DrawField()
         {
-            if (!GameOver)
+            if (!IsGameOver)
             {
                 Console.SetCursorPosition(0, 0);
                 //изменение массива игрового поля
@@ -245,7 +247,6 @@ namespace TestSnake
                 Console.WriteLine("Жизни: " + SnakeLife);
                 Console.WriteLine("Счет: " + LevelScore);
                 Console.WriteLine("Необходимо еды собрать: " + settings.RequiredFoodPoints);
-                Console.WriteLine("Осталось еды собрать: " + (settings.RequiredFoodPoints - LevelScore));
             }
             else
             {
@@ -304,11 +305,15 @@ namespace TestSnake
         /// </summary>
         public void StartGame()
         {
+            TotalScore = 0;
+            DeathCount = 0;
+            Step = 0;
+            CurrentLevel = 1;
             //отключаем видимость курсора, чтобы картинка не мерцала
             Console.CursorVisible = false;
             LoadGameSettings();
             GetWallsCoordinates();
-            while (!GameOver)
+            while (!IsGameOver)
             {
                 snake.direction = Game.direction;
                 snake.SnakeLogic();
@@ -320,19 +325,16 @@ namespace TestSnake
                     LevelScore++;
                     TotalScore++;
                 }
+                if (SnakeLife == 0)
+                {
+                    LevelConfig = FirstLevel;
+                    StartGame();
+                }
                 if (IsFail())
                 {
                     DeathCount++;
-                    SnakeLife -= DeathCount;
-                    //если умерли окончательно, то метод подгрузки данных не нужно вызывать
-                    if (SnakeLife > 0)
-                    {
-                        LoadGameSettings();
-                    }
-                }
-                if (SnakeLife == 0)
-                {
-                    GameOver = true;
+                    LoadGameSettings();
+                    SnakeLife -= DeathCount; 
                 }
                 if (LevelScore == settings.RequiredFoodPoints)
                 {
@@ -340,12 +342,12 @@ namespace TestSnake
                     ChangeFoodPosition();
                     if (CurrentLevel == 3)
                     {
-                        GameOver = true;
+                        IsGameOver = true;
                     }
                 }
                 DrawField();
                 //приостановка потока. используется вместо объявления и инициализации объекта таймера
-                Thread.Sleep(snake.GameSpeed);
+                Thread.Sleep(snake.GameSpeed);  
             }
         }
     }

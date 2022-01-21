@@ -61,7 +61,7 @@ namespace TestSnake
             direction = Direction.Up;
             draw = new Draw();
             new Thread(new ThreadStart(draw.StartGame)).Start(); //запуск нового потока для отрисовки игры
-            while (!draw.GameOver)
+            while (!draw.IsGameOver)
             {
                 KeyListener();
             }
