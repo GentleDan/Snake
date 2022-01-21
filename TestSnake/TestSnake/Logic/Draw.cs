@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace TestSnake
 {
@@ -308,41 +307,36 @@ namespace TestSnake
         /// </summary>
         public void CheckGameLogic()
         {
-            while (!IsGameOver)
+            snake.direction = Game.direction;
+            snake.SnakeLogic();
+            Step++;
+            if (IsEat())
             {
-                snake.direction = Game.direction;
-                snake.SnakeLogic();
-                Step++;
-                if (IsEat())
-                {
-                    ChangeFoodPosition();
-                    snake.Size++;
-                    LevelScore++;
-                    TotalScore++;
-                }
-                if (SnakeLife == 0)
-                {
-                    StartGame();
-                }
-                if (IsFail())
-                {
-                    DeathCount++;
-                    LoadGameSettings();
-                    SnakeLife -= DeathCount;
-                }
-                if (LevelScore == settings.RequiredFoodPoints)
-                {
-                    ChangeLevel();
-                    ChangeFoodPosition();
-                    if (CurrentLevel == 3)
-                    {
-                        IsGameOver = true;
-                    }
-                }
-                DrawField();
-                //приостановка потока. используется вместо объявления и инициализации объекта таймера
-                Thread.Sleep(snake.GameSpeed);
+                ChangeFoodPosition();
+                snake.Size++;
+                LevelScore++;
+                TotalScore++;
             }
+            if (SnakeLife == 0)
+            {
+                StartGame();
+            }
+            if (IsFail())
+            {
+                DeathCount++;
+                LoadGameSettings();
+                SnakeLife -= DeathCount;
+            }
+            if (LevelScore == settings.RequiredFoodPoints)
+            {
+                ChangeLevel();
+                ChangeFoodPosition();
+                if (CurrentLevel == LvlCount+1)
+                {
+                    IsGameOver = true;
+                }
+            }
+            DrawField();
         }
 
         /// <summary>

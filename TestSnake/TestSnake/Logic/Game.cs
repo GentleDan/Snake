@@ -26,27 +26,35 @@ namespace TestSnake
                 {
                     case ConsoleKey.W:
                         direction = Direction.Up;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.UpArrow:
                         direction = Direction.Up;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.A:
                         direction = Direction.Left;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.LeftArrow:
                         direction = Direction.Left;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.S:
                         direction = Direction.Down;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.DownArrow:
                         direction = Direction.Down;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.D:
                         direction = Direction.Right;
+                        draw.CheckGameLogic();
                         break;
                     case ConsoleKey.RightArrow:
                         direction = Direction.Right;
+                        draw.CheckGameLogic();
                         break;
                 }
                 return direction;
@@ -58,9 +66,9 @@ namespace TestSnake
         /// </summary>
         static void Main(string[] args)
         {
-            direction = Direction.Up;
+            direction = Direction.Stop;
             draw = new Draw();
-            new Thread(new ThreadStart(draw.StartGame)).Start(); //запуск нового потока для отрисовки игры
+            draw.StartGame();
             while (!draw.IsGameOver)
             {
                 KeyListener();
