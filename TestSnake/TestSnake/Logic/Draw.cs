@@ -334,7 +334,7 @@ namespace TestSnake
                 {
                     ChangeLevel();
                     ChangeFoodPosition();
-                    if (CurrentLevel == 3)
+                    if (CurrentLevel == LvlCount+1)
                     {
                         IsGameOver = true;
                     }
