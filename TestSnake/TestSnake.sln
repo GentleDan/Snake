@@ -5,10 +5,15 @@ VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSnake", "TestSnake\TestSnake.csproj", "{0184218F-9E21-4085-8DEB-310FF0C376F9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Levels", "Levels", "{BAF71C47-0A6A-472A-AE0F-F2DA51D7A8A9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{3E1EF5AD-D919-4536-B12B-33339C54B0C3}"
 	ProjectSection(SolutionItems) = preProject
-		FirstLevel.txt = FirstLevel.txt
-		SecondLevel.txt = SecondLevel.txt
+		Config\GameConfig.json = Config\GameConfig.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Levels", "Levels", "{74A0F1FB-7025-40DA-8248-F121962AEE23}"
+	ProjectSection(SolutionItems) = preProject
+		Levels\FirstLevel.json = Levels\FirstLevel.json
+		Levels\SecondLevel.json = Levels\SecondLevel.json
 	EndProjectSection
 EndProject
 Global

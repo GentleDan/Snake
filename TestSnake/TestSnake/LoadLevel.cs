@@ -1,55 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 
 namespace TestSnake
 {
+    /// <summary>
+    /// Класс LoadLevel. Отвечает за чтение данных уровня
+    /// и конфигурации из JSON
+    /// </summary>
     public class LoadLevel
     {
-        private string ConfigFilePath { get; set; }
-        public LoadLevel(string config)
+        public string ConfigFilePath { get; set; } // путь к файлу с настройками уровня
+        public string JsonConfigFilePath { get; set; } // путь к файлу с дополнительной конфигурацией
+
+        public LoadLevel(string config, string jsonConfig)
         {
             ConfigFilePath = config;
+            JsonConfigFilePath = jsonConfig;
         }
 
-        public LevelSettings ReadInfo()
+        /// <summary>
+        /// Метод ReadInfo(). Отвечает за чтение данных уровня
+        /// и конфигурации из JSON
+        /// </summary>
+        public LevelSettings ReadLevelInfo()
         {
             LevelSettings level = new LevelSettings();
             try
             {
-                List<string> fileInfo = new List<string>();
-                using (StreamReader streamReader = new StreamReader(ConfigFilePath))
-                {
-                    string line;
-                    while ((line = streamReader.ReadLine()) != null)
-                    {
-                        fileInfo.Add(line);
-                    }
-                }
-                level.Width = Convert.ToInt32(fileInfo[0].Split(' ')[0]);
-                level.Height = Convert.ToInt32(fileInfo[0].Split(' ')[1]);
-                level.Level = new char[level.Height, level.Width];
-                for (int i = 0; i < level.Height; i++)
-                {
-                    char[] tmp = fileInfo[i + 1].ToCharArray();
-
-                    for (int j = 0; j < level.Width; j++)
-                    {
-                        level.Level[i, j] = tmp[j];
-                    }
-                }
-                level.RequiredFoodPoints = Convert.ToInt32(fileInfo[level.Height + 1]);
-                level.FoodCount = Convert.ToInt32(fileInfo[level.Height + 2]);
-                level.SnakePosX = Convert.ToInt32(fileInfo[level.Height + 3].Split(' ')[0]);
-                level.SnakePosY = Convert.ToInt32(fileInfo[level.Height + 3].Split(' ')[1]);
+                var data = JsonConvert.DeserializeObject<LevelSettings>(File.ReadAllText(ConfigFilePath)); //десериализация объекта
+                level.Width = data.Width;
+                level.Height = data.Height;
+                level.Level = data.Level;
+                level.RequiredFoodPoints = data.RequiredFoodPoints;
+                level.FoodCount = data.FoodCount;
+                level.SnakePosX = data.SnakePosX;
+                level.SnakePosY = data.SnakePosY;
+                CheckInputData(level.RequiredFoodPoints, level.FoodCount);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Некорректные данные в файле загрузки");
             }
             return level;
+        }
+
+
+        /// <summary>
+        /// Метод ParseLevel(). Преобразовывает тип массива с уровнем со string на char
+        /// </summary>
+        /// <param name="array">Массив, считываемый из JSON</param>
+        /// <param name="level">Объект класса игровых настроек</param>
+        public char[,] ParseLevel(string[,] array, LevelSettings level)
+        {
+            int firstColumn = 0; // указываем, что нужно бегать по первому столбцу из массива уровня, после получение объекта из json
+            char[,] parsedLevel = new char[level.Width, level.Height];
+            for (int i = 0; i < level.Height; i++)
+            {
+                char[] tmp = array[i, firstColumn].ToCharArray();
+
+                for (int j = 0; j < level.Width; j++)
+                {
+                    parsedLevel[i, j] = tmp[j];
+                }
+            }
+            return parsedLevel;
+        }
+
+        /// <summary>
+        /// Метод CheckInputData(). Проверяет входящие данные из файла
+        /// </summary>
+        /// <param name="reqFood">Требуемое кол-во еды для прохождения уровня из файла</param>
+        /// <param name="foodCount">Кол-во еды из файла, одновременно находящееся на игровом поле</param>
+        public void CheckInputData(int reqFood, int foodCount)
+        {
+            if (reqFood < 1)
+            {
+                throw new Exception("Минимально требуемое количество еды должно быть не меньше 1");
+            }
+            if (foodCount < 1)
+            {
+                throw new Exception("Минимально количество еды на поле должно быть не меньше 1");
+            }
+        }
+
+        /// <summary>
+        /// Метод LoadConfig(). Подгружает доп конфигурацию из JSON 
+        /// </summary>
+        public GameJsonConfig LoadConfig()
+        {
+            GameJsonConfig gameJsonConfig = new GameJsonConfig();
+            try
+            {
+                var data = JsonConvert.DeserializeObject<GameJsonConfig>(File.ReadAllText(JsonConfigFilePath));
+                gameJsonConfig.LifeCount = data.LifeCount;
+                gameJsonConfig.SnakeSize = data.SnakeSize;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return gameJsonConfig;
         }
     }
 }

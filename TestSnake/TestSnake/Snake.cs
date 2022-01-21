@@ -1,20 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TestSnake
+﻿namespace TestSnake
 {
+    /// <summary>
+    /// Класс Snake. Модель змейки
+    /// </summary>
     public class Snake
     {
         public Direction direction;
         public int PosX { get; set; }
         public int PosY { get; set; }
-        public int Size { get; set; }
-        public int GameSpeed { get; set; }
+        public int Size { get; set; } 
+        public int GameSpeed { get; set; } // время простоя потока (чем меньше, тем быстрее будет обновляться поле)
         public int Life { get; set; }
-        public int[] TailX;
-        public int[] TailY;
+        public int[] TailX; // координаты по X хвоста змейки
+        public int[] TailY; // координаты по Y хвоста змейки
 
+        /// <summary>
+        /// Метод SnakeLogic(). Метод, устанавливающий направление змейки
+        /// , а также выставляющий координаты элементам хвоста
+        /// </summary>
         public void SnakeLogic()
         {
             TailX[0] = PosX;

@@ -3,10 +3,20 @@ using System.Threading;
 
 namespace TestSnake
 {
+    /// <summary>
+    /// Класс Game. Основной класс программы,
+    /// где осуществляется вызов методов класса
+    /// Draw, а также управление змейкой
+    /// </summary>
     class Game
     {
         private static Draw draw;
         public static Direction direction;
+
+        /// <summary>
+        /// Метод KeyListener(). Листинер нажатия клавиш
+        /// пользователем для изменения движения змейки
+        /// </summary>
         public static Direction KeyListener()
         {
             if (Console.KeyAvailable)
@@ -31,12 +41,14 @@ namespace TestSnake
             }
             return Direction.Stop;
         }
-
+        /// <summary>
+        /// Метод Main(). Точка входа программы
+        /// </summary>
         static void Main(string[] args)
         {
             direction = Direction.Up;
             draw = new Draw();
-            new Thread(new ThreadStart(draw.StartGame)).Start();
+            new Thread(new ThreadStart(draw.StartGame)).Start(); //запуск нового потока для отрисовки игры
             while (!draw.GameOver)
             {
                 KeyListener();

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TestSnake
+﻿namespace TestSnake
 {
+    /// <summary>
+    /// Класс Wall. Модель стены
+    /// </summary>
     public class Wall
     {
         public int PosX { get; set; }
